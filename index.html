@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>思い出投稿 | 巻物年表</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Shippori+Mincho&display=swap');
         body { font-family: 'Shippori Mincho', serif; background-color: #f4f1ea; }
@@ -21,23 +21,27 @@
                 <label class="block text-sm font-bold text-gray-700 mb-1">いつのこと？</label>
                 <div class="flex gap-2">
                     <select id="year" class="border p-2 rounded w-full bg-transparent">
-                        <option>2024年</option><option>2025年</option>
+                        <option value="2024年">2024年</option>
+                        <option value="2025年">2025年</option>
                     </select>
                     <select id="season" class="border p-2 rounded w-full bg-transparent">
-                        <option>春</option><option>夏</option><option>秋</option><option>冬</option>
+                        <option value="春">春</option>
+                        <option value="夏">夏</option>
+                        <option value="秋">秋</option>
+                        <option value="冬">冬</option>
                     </select>
                 </div>
             </div>
             <div>
-                <label class="block text-sm font-bold text-gray-700 mb-1">巻物に載る一言（タイトル）</label>
+                <label for="title" class="block text-sm font-bold text-gray-700 mb-1">巻物に載る一言（タイトル）</label>
                 <input type="text" id="title" required class="w-full border-b-2 border-gray-300 p-2 focus:border-red-800 outline-none bg-transparent">
             </div>
             <div>
-                <label class="block text-sm font-bold text-gray-700 mb-1">QRの先で読めるお手紙</label>
+                <label for="message" class="block text-sm font-bold text-gray-700 mb-1">QRの先で読めるお手紙</label>
                 <textarea id="message" rows="4" class="w-full border p-2 rounded bg-transparent"></textarea>
             </div>
             <div>
-                <label class="block text-sm font-bold text-gray-700 mb-1">お名前（ニックネーム可）</label>
+                <label for="author" class="block text-sm font-bold text-gray-700 mb-1">お名前（ニックネーム可）</label>
                 <input type="text" id="author" required class="w-full border-b-2 border-gray-300 p-2 bg-transparent">
             </div>
             <button type="submit" id="submitBtn" class="w-full bg-red-900 text-white py-4 rounded font-bold shadow-lg hover:bg-red-800 transition">
@@ -50,9 +54,10 @@
         // --- ここを自分の情報に書き換えてください ---
         const SUPABASE_URL = 'https://pjhplgopgabbdwuwqtrh.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBqaHBsZ29wZ2FiYmR3dXdxdHJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgxMTkwODQsImV4cCI6MjA4MzY5NTA4NH0.RrMTtl_l56qZLnYLQKvPrF7-6EomPIdKtHC1iFKTAXs';
-        // ------------------------------------------
 
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        // 2. 呼び出し方をエラーの出にくい方式に変更
+        const { createClient } = window.supabase;
+        const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
 
         document.getElementById('memoryForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -60,24 +65,33 @@
             btn.disabled = true;
             btn.innerText = '送信中...';
 
-            const year_season = document.getElementById('year').value + ' ' + document.getElementById('season').value;
+            const yearValue = document.getElementById('year').value;
+            const seasonValue = document.getElementById('season').value;
             const title = document.getElementById('title').value;
             const message = document.getElementById('message').value;
             const author = document.getElementById('author').value;
 
-            const { data, error } = await supabase
-                .from('memories')
-                .insert([{ year_season, title, message, author }]);
+            try {
+                const { data, error } = await supabaseClient
+                    .from('memories')
+                    .insert([{ 
+                        year_season: `${yearValue} ${seasonValue}`, 
+                        title, 
+                        message, 
+                        author 
+                    }]);
 
-            if (error) {
-                alert('エラーが発生しました: ' + error.message);
-                console.error(error);
-            } else {
+                if (error) throw error;
+
                 alert('思い出を預かりました！ありがとうございます。');
                 document.getElementById('memoryForm').reset();
+            } catch (err) {
+                alert('エラーが発生しました: ' + err.message);
+                console.error(err);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = '思い出を預ける';
             }
-            btn.disabled = false;
-            btn.innerText = '思い出を預ける';
         });
     </script>
 </body>
