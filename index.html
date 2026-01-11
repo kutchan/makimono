@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>思い出投稿 | 巻物年表</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.js"></script>
+    <script src="supabase.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Shippori+Mincho&display=swap');
@@ -15,16 +15,15 @@
 <body class="p-4 md:p-8">
     <div class="max-w-md mx-auto washi-texture p-6 shadow-xl border-t-4 border-red-800 rounded-sm">
         <h1 class="text-2xl font-bold text-red-900 mb-6 border-b border-red-200 pb-2">思い出の断片を贈る</h1>
-        
         <form id="memoryForm" class="space-y-6">
             <div>
                 <span class="block text-sm font-bold text-gray-700 mb-1">いつのこと？</span>
                 <div class="flex gap-2">
-                    <select id="year" name="year" class="border p-2 rounded w-full bg-transparent">
+                    <select id="year" class="border p-2 rounded w-full bg-transparent">
                         <option value="2024年">2024年</option>
                         <option value="2025年">2025年</option>
                     </select>
-                    <select id="season" name="season" class="border p-2 rounded w-full bg-transparent">
+                    <select id="season" class="border p-2 rounded w-full bg-transparent">
                         <option value="春">春</option>
                         <option value="夏">夏</option>
                         <option value="秋">秋</option>
@@ -34,65 +33,53 @@
             </div>
             <div>
                 <label for="title" class="block text-sm font-bold text-gray-700 mb-1">巻物に載る一言</label>
-                <input type="text" id="title" name="title" required class="w-full border-b-2 border-gray-300 p-2 focus:border-red-800 outline-none bg-transparent">
+                <input type="text" id="title" required class="w-full border-b-2 border-gray-300 p-2 focus:border-red-800 outline-none bg-transparent">
             </div>
             <div>
                 <label for="message" class="block text-sm font-bold text-gray-700 mb-1">お手紙</label>
-                <textarea id="message" name="message" rows="4" class="w-full border p-2 rounded bg-transparent"></textarea>
+                <textarea id="message" rows="4" class="w-full border p-2 rounded bg-transparent"></textarea>
             </div>
             <div>
                 <label for="author" class="block text-sm font-bold text-gray-700 mb-1">お名前</label>
-                <input type="text" id="author" name="author" required class="w-full border-b-2 border-gray-300 p-2 bg-transparent">
+                <input type="text" id="author" required class="w-full border-b-2 border-gray-300 p-2 bg-transparent">
             </div>
-            <button type="submit" id="submitBtn" class="w-full bg-red-900 text-white py-4 rounded font-bold shadow-lg hover:bg-red-800 transition">
-                思い出を預ける
-            </button>
+            <button type="submit" id="submitBtn" class="w-full bg-red-900 text-white py-4 rounded font-bold shadow-lg hover:bg-red-800 transition">思い出を預ける</button>
         </form>
     </div>
 
     <script>
-        // 【必ず書き換えてください】
         const SUPABASE_URL = 'https://pjhplgopgabbdwuwqtrh.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBqaHBsZ29wZ2FiYmR3dXdxdHJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgxMTkwODQsImV4cCI6MjA4MzY5NTA4NH0.RrMTtl_l56qZLnYLQKvPrF7-6EomPIdKtHC1iFKTAXs';
 
-        const { createClient } = window.supabase;
-        const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+        // 読み込み完了を待ってから初期化する
+        window.onload = () => {
+            const { createClient } = window.supabase;
+            const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        document.getElementById('memoryForm').addEventListener('submit', async (event) => {
-            event.preventDefault();
-            const btn = document.getElementById('submitBtn');
-            btn.disabled = true;
-            btn.textContent = '送信中...';
+            document.getElementById('memoryForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const btn = document.getElementById('submitBtn');
+                btn.disabled = true;
+                btn.innerText = '送信中...';
 
-            const yearSeason = document.getElementById('year').value + ' ' + document.getElementById('season').value;
-            const titleValue = document.getElementById('title').value;
-            const messageValue = document.getElementById('message').value;
-            const authorValue = document.getElementById('author').value;
-
-            try {
-                const { error } = await supabase
-                    .from('memories')
-                    .insert([
-                        { 
-                            year_season: yearSeason, 
-                            title: titleValue, 
-                            message: messageValue, 
-                            author: authorValue 
-                        }
-                    ]);
-
-                if (error) throw error;
-
-                alert('思い出を預かりました！');
-                document.getElementById('memoryForm').reset();
-            } catch (err) {
-                alert('エラー: ' + err.message);
-                console.error('詳細:', err);
-            } finally {
-                btn.disabled = false;
-                btn.textContent = '思い出を預ける';
-            }
-        });
+                try {
+                    const { error } = await supabase.from('memories').insert([{
+                        year_season: document.getElementById('year').value + ' ' + document.getElementById('season').value,
+                        title: document.getElementById('title').value,
+                        message: document.getElementById('message').value,
+                        author: document.getElementById('author').value
+                    }]);
+                    if (error) throw error;
+                    alert('思い出を預かりました！');
+                    document.getElementById('memoryForm').reset();
+                } catch (err) {
+                    alert('エラー: ' + err.message);
+                } finally {
+                    btn.disabled = false;
+                    btn.innerText = '思い出を預ける';
+                }
+            });
+        };
     </script>
 </body>
 </html>
