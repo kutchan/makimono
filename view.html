@@ -20,45 +20,51 @@
         }
 
         .header-month {
-            background: #8b0000; color: white; padding: 10px; text-align: center;
+            background: #8b0000; color: white; padding: 12px; text-align: center;
             font-weight: bold; border-right: 1px solid #630000; position: sticky; top: 0; z-index: 20;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
+        /* 2段目：季節の帯（はっきりした配色） */
         .header-season-span {
-            text-align: center; padding: 6px; font-weight: bold; font-size: 0.9rem;
-            letter-spacing: 0.5em; border-bottom: 2px solid #8b0000; border-right: 1px solid #d1d1d1;
+            text-align: center; padding: 8px; font-weight: bold; font-size: 1rem;
+            letter-spacing: 0.8em; border-bottom: 3px solid #8b0000; border-right: 1px solid #d1d1d1;
             grid-row: 2;
         }
-        .season-haru { background-color: #fff5f7; color: #d44d5c; }
-        .season-natsu { background-color: #f0f9ff; color: #0077b6; }
-        .season-aki { background-color: #fff9f0; color: #b5651d; }
-        .season-fuyu { background-color: #f8f8ff; color: #4a4e69; }
+        /* 春：ピンク系 */
+        .season-haru { background-color: #ffebf0; color: #b03a48; }
+        /* 夏：オレンジ系 */
+        .season-natsu { background-color: #fff4e0; color: #a67c00; }
+        /* 秋：紅葉系（深みのある赤茶） */
+        .season-aki { background-color: #fbe9e7; color: #a14e24; }
+        /* 冬：白・青み系 */
+        .season-fuyu { background-color: #f0f4f8; color: #546e7a; }
 
         .cards-area { border-right: 1px dashed #d1d1d1; min-height: 60vh; padding: 10px; grid-row: 3; }
 
         .memory-card {
             background: white; padding: 15px; margin-bottom: 20px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.08); border-radius: 2px;
-            cursor: pointer; transition: transform 0.2s; border: 1px solid #eee;
+            cursor: pointer; transition: all 0.2s; border: 1px solid #eee;
         }
-        .memory-card:hover { transform: translateY(-3px); border-color: #8b0000; }
+        .memory-card:hover { transform: translateY(-3px); border-color: #8b0000; box-shadow: 0 6px 20px rgba(139,0,0,0.15); }
         .card-img { width: 100%; height: 160px; object-fit: cover; border-radius: 2px; margin-bottom: 10px; }
 
         #modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 100; align-items: center; justify-content: center; padding: 20px; }
-        .modal-content { background: #f4f1ea; max-width: 500px; width: 100%; padding: 30px; position: relative; border-radius: 4px; }
+        .modal-content { background: #f4f1ea; max-width: 500px; width: 100%; padding: 30px; position: relative; border-radius: 4px; border: 1px solid #d1bfa7; }
     </style>
 </head>
 <body>
 
 <div class="washi-bg">
-    <h1 class="text-center py-6 text-2xl text-red-900 font-bold bg-white/50">思い出巻物年表</h1>
+    <h1 class="text-center py-8 text-3xl text-red-900 font-bold bg-white/60 shadow-sm">思い出巻物年表</h1>
     <div class="timeline-container" id="timelineGrid"></div>
 </div>
 
 <div id="modal" onclick="closeModal()">
     <div class="modal-content" onclick="event.stopPropagation()">
-        <button class="absolute top-4 right-4 text-3xl" onclick="closeModal()">&times;</button>
-        <div id="modalData"></div>
+        <button class="absolute top-4 right-4 text-3xl text-gray-400 hover:text-red-900" onclick="closeModal()">&times;</button>
+        <div id="modalData" class="py-4"></div>
     </div>
 </div>
 
@@ -73,7 +79,7 @@
         const grid = document.getElementById('timelineGrid');
         let currentColumn = 1;
 
-        // 1. 各年・月ごとの「1段目」と「3段目」を作成
+        // 1段目と3段目
         years.forEach(y => {
             months.forEach(m => {
                 const monthDiv = document.createElement('div');
@@ -94,16 +100,14 @@
             });
         });
 
-        // 2. 「2段目（季節）」の作成：年を跨いで3ヶ月ごとに結合
-        // 2024年1月を起点として、3ヶ月おきのスパンで描画する
+        // 2段目：季節の結合描画
         const totalMonths = years.length * 12;
         let col = 1;
 
-        // 起点の1,2月だけは2ヶ月分（2024年のスタート地点）
+        // 起点(1,2月)
         createSeasonLabel('冬', 2, 'season-fuyu', col);
         col += 2;
 
-        // その後は 春(3), 夏(3), 秋(3), 冬(3) を繰り返す
         const cycle = [
             { name: '春', class: 'season-haru' },
             { name: '夏', class: 'season-natsu' },
@@ -114,12 +118,9 @@
         let cycleIdx = 0;
         while (col <= totalMonths) {
             let span = 3;
-            // 最後の端数調整
             if (col + span > totalMonths + 1) span = (totalMonths + 1) - col;
-            
             const s = cycle[cycleIdx % 4];
             createSeasonLabel(s.name, span, s.class, col);
-            
             col += span;
             cycleIdx++;
         }
@@ -133,7 +134,7 @@
             grid.appendChild(div);
         }
 
-        // 3. データ取得
+        // データ取得
         try {
             const res = await fetch(`${SUPABASE_URL}/rest/v1/memories?select=*`, {
                 headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
@@ -156,9 +157,9 @@
                     card.className = 'memory-card';
                     card.onclick = () => showDetail(item);
                     card.innerHTML = `
-                        ${item.image_url ? `<img src="${item.image_url}" class="card-img">` : ''}
-                        <div class="text-sm font-bold text-gray-800">${item.title}</div>
-                        <div class="text-xs text-gray-400 mt-2 text-right">― ${item.author}</div>
+                        ${item.image_url ? `<img src="${item.image_url}" class="card-img shadow-sm">` : ''}
+                        <div class="text-sm font-bold text-gray-800 leading-tight">${item.title}</div>
+                        <div class="text-[10px] text-gray-400 mt-2 text-right italic">― ${item.author}</div>
                     `;
                     container.appendChild(card);
                 }
@@ -171,10 +172,10 @@
         const content = document.getElementById('modalData');
         content.innerHTML = `
             <div class="text-red-900 font-bold text-xs mb-1">${item.year_season}</div>
-            <h2 class="text-xl font-bold mb-4 border-b pb-2 text-gray-800">${item.title}</h2>
-            ${item.image_url ? `<img src="${item.image_url}" class="w-full rounded mb-4 shadow-sm">` : ''}
-            <p class="text-gray-700 leading-relaxed whitespace-pre-wrap mb-6 text-sm md:text-base">${item.message}</p>
-            <div class="text-right text-gray-400 text-sm italic">― ${item.author} より</div>
+            <h2 class="text-2xl font-bold mb-4 border-b pb-3 text-gray-800">${item.title}</h2>
+            ${item.image_url ? `<img src="${item.image_url}" class="w-full rounded mb-6 shadow-md border-4 border-white">` : ''}
+            <p class="text-gray-700 leading-relaxed whitespace-pre-wrap mb-8 text-sm md:text-base">${item.message}</p>
+            <div class="text-right text-gray-500 text-xs pt-4 border-t border-dashed">― ${item.author} より</div>
         `;
         modal.style.display = 'flex';
     }
