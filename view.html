@@ -17,7 +17,7 @@
         .memory-card:hover { transform: translateY(-5px); border-color: #8b0000; }
         .card-img { width: 100%; height: 160px; object-fit: cover; border-radius: 2px; margin-bottom: 10px; }
         #modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 100; align-items: center; justify-content: center; padding: 20px; }
-        .modal-content { background: #f4f1ea; max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto; padding: 30px; position: relative; border-radius: 4px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5); }
+        .modal-content { background: #f4f1ea; max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto; padding: 30px; position: relative; border-radius: 4px; }
     </style>
 </head>
 <body>
@@ -38,22 +38,24 @@
     const SUPABASE_URL = 'https://pjhplgopgabbdwuwqtrh.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBqaHBsZ29wZ2FiYmR3dXdxdHJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgxMTkwODQsImV4cCI6MjA4MzY5NTA4NH0.RrMTtl_l56qZLnYLQKvPrF7-6EomPIdKtHC1iFKTAXs';
 
-    const fiscalMonths = ['4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月'];
-    const years = ['2024', '2025'];
-    const seasonToMonth = { "春（3〜5月）": "4月", "夏（6〜8月）": "7月", "秋（9〜11月）": "10月", "冬（12〜翌2月）": "1月" };
+    const months = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
+    // 2024年から2026年まで（冬の繰り越し対応）を生成
+    const years = ['2024', '2025', '2026'];
 
     async function initTimeline() {
         const wrapper = document.getElementById('timelineWrapper');
         
         years.forEach(y => {
-            fiscalMonths.forEach(m => {
+            months.forEach(m => {
                 const slot = document.createElement('div');
                 slot.className = 'time-slot';
                 slot.id = `slot-${y}-${m}`;
-                let sLabel = (['3月','4月','5月'].includes(m)) ? "春" : (['6月','7月','8月'].includes(m)) ? "夏" : (['9月','10月','11月'].includes(m)) ? "秋" : "冬";
+                // 1,2,12月は冬、3,4,5は春...
+                let mInt = parseInt(m);
+                let sLabel = (mInt >= 3 && mInt <= 5) ? "春" : (mInt >= 6 && mInt <= 8) ? "夏" : (mInt >= 9 && mInt <= 11) ? "秋" : "冬";
                 
                 slot.innerHTML = `
-                    <div class="header-season">${y}年度 ${sLabel}</div>
+                    <div class="header-season">${y}年 ${sLabel}</div>
                     <div class="header-month">${m}</div>
                     <div class="cards-container p-2"></div>
                 `;
@@ -69,9 +71,17 @@
 
             data.forEach(item => {
                 const parts = item.year_season.split('年 ');
-                let y = parts[0];
+                let y = parseInt(parts[0]);
                 let m = parts[1];
-                if (seasonToMonth[m]) m = seasonToMonth[m];
+
+                // --- 自動振り分けロジック ---
+                if (m === "春（3〜5月）") m = "4月";
+                else if (m === "夏（6〜8月）") m = "7月";
+                else if (m === "秋（9〜11月）") m = "10月";
+                else if (m === "冬（12〜翌2月）") { 
+                    m = "1月"; 
+                    y = y + 1; // ここで翌年の1月に飛ばす！
+                }
 
                 const container = document.querySelector(`#slot-${y}-${m} .cards-container`);
                 if (container) {
