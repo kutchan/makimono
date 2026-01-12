@@ -3,94 +3,154 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>思い出の巻物 | 年表</title>
+    <title>思い出の巻物年表</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Shippori+Mincho&display=swap');
-        body { font-family: 'Shippori Mincho', serif; background-color: #f4f1ea; overflow-x: auto; }
-        .scroll-container { 
-            display: flex; 
-            padding: 50px 20px;
-            min-height: 100vh;
+        body { font-family: 'Shippori Mincho', serif; background-color: #f4f1ea; margin: 0; overflow-x: hidden; }
+        
+        /* 和紙の質感背景 */
+        .washi-bg {
             background-image: url("https://www.transparenttextures.com/patterns/asfalt-light.png");
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
-        /* 巻物の芯をイメージした装飾 */
-        .scroll-item {
-            flex: 0 0 300px;
-            margin-right: 40px;
-            position: relative;
+
+        /* 横スクロールエリア */
+        .timeline-wrapper {
+            display: flex;
+            overflow-x: auto;
+            padding-bottom: 50px;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* 季節・月のヘッダー（固定） */
+        .time-slot {
+            flex: 0 0 250px; /* 1つの月/季節の幅 */
+            border-left: 1px dashed #d1d1d1;
+            display: flex;
+            flex-direction: column;
+            min-height: 80vh;
+        }
+
+        .header-season { background: #8b0000; color: white; padding: 5px; text-align: center; font-size: 0.8rem; }
+        .header-month { background: #fdfdfd; color: #333; padding: 10px; text-align: center; border-bottom: 2px solid #8b0000; font-weight: bold; }
+
+        /* 思い出カード */
+        .memory-card {
+            margin: 15px;
             background: white;
-            padding: 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            border-left: 2px solid #8b0000;
+            padding: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            border-radius: 2px;
+            cursor: pointer;
+            transition: transform 0.2s;
         }
-        .scroll-item::before {
-            content: ""; position: absolute; left: -10px; top: 0; bottom: 0; width: 10px;
-            background: linear-gradient(to right, #5e0000, #8b0000);
-            border-radius: 5px 0 0 5px;
-        }
+        .memory-card:hover { transform: translateY(-5px); }
+        .card-img { width: 100%; h-32; object-cover; border-radius: 2px; margin-bottom: 8px; }
+
+        /* ポップアップ（詳細表示用） */
+        #modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 100; align-items: center; justify-content: center; padding: 20px; }
+        .modal-content { background: #f4f1ea; max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto; padding: 30px; position: relative; border-radius: 5px; }
     </style>
 </head>
 <body>
-    <div class="scroll-container" id="timeline">
-        <div class="flex items-center justify-center w-full text-red-900 italic">
-            思い出を紐解いています...
+
+<div class="washi-bg">
+    <h1 class="text-center py-6 text-2xl text-red-900 font-bold border-b border-red-200">思い出巻物年表</h1>
+
+    <div class="timeline-wrapper" id="timelineWrapper">
         </div>
+</div>
+
+<div id="modal" onclick="closeModal()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <button class="absolute top-2 right-4 text-2xl" onclick="closeModal()">×</button>
+        <div id="modalData"></div>
     </div>
+</div>
 
-    <script>
-        const SUPABASE_URL = 'https://pjhplgopgabbdwuwqtrh.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBqaHBsZ29wZ2FiYmR3dXdxdHJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgxMTkwODQsImV4cCI6MjA4MzY5NTA4NH0.RrMTtl_l56qZLnYLQKvPrF7-6EomPIdKtHC1iFKTAXs';
+<script>
+    const SUPABASE_URL = 'https://pjhplgopgabbdwuwqtrh.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBqaHBsZ29wZ2FiYmR3dXdxdHJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgxMTkwODQsImV4cCI6MjA4MzY5NTA4NH0.RrMTtl_l56qZLnYLQKvPrF7-6EomPIdKtHC1iFKTAXs';
 
-        // 季節を並び替え用の数値に変換する辞書
-        const seasonMap = { "春": 4, "夏": 7, "秋": 10, "冬": 13 };
+    // タイムラインの構成データ（2024年春〜2025年冬までを定義）
+    const timelineConfig = [
+        { year: '2024', season: '春', months: ['3月', '4月', '5月', '春'] },
+        { year: '2024', season: '夏', months: ['6月', '7月', '8月', '夏'] },
+        { year: '2024', season: '秋', months: ['9月', '10月', '11月', '秋'] },
+        { year: '2024', season: '冬', months: ['12月', '1月', '2月', '冬'] },
+        { year: '2025', season: '春', months: ['3月', '4月', '5月', '春'] },
+        { year: '2025', season: '夏', months: ['6月', '7月', '8月', '夏'] },
+        { year: '2025', season: '秋', months: ['9月', '10月', '11月', '秋'] },
+        { year: '2025', season: '冬', months: ['12月', '1月', '2月', '冬'] }
+    ];
 
-        async function loadMemories() {
-            try {
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/memories?select=*`, {
-                    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
-                });
-                const data = await response.json();
+    async function initTimeline() {
+        const wrapper = document.getElementById('timelineWrapper');
+        
+        // 1. まず空のタイムライン（月ごとの列）を作る
+        timelineConfig.forEach(s => {
+            s.months.forEach(m => {
+                const slot = document.createElement('div');
+                slot.className = 'time-slot';
+                slot.id = `slot-${s.year}-${m}`;
+                slot.innerHTML = `
+                    <div class="header-season">${s.year}年 ${s.season}</div>
+                    <div class="header-month">${m}</div>
+                    <div class="cards-container p-2"></div>
+                `;
+                wrapper.appendChild(slot);
+            });
+        });
 
-                // --- 1. 時間順に並び替える（ソートロジック） ---
-                data.sort((a, b) => {
-                    const parseDate = (str) => {
-                        const [y, ms] = str.split('年 '); // "2025年 5月" を分割
-                        const year = parseInt(y);
-                        let month = 0;
-                        if (ms.includes('月')) {
-                            month = parseInt(ms);
-                        } else {
-                            month = seasonMap[ms] || 0;
-                        }
-                        return year * 100 + month; // 202505 のような数値にして比較
-                    };
-                    return parseDate(a.year_season) - parseDate(b.year_season);
-                });
+        // 2. データを取得して、該当する月の列に入れる
+        try {
+            const res = await fetch(`${SUPABASE_URL}/rest/v1/memories?select=*`, {
+                headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+            });
+            const data = await res.json();
 
-                // --- 2. 画面に表示する ---
-                const container = document.getElementById('timeline');
-                container.innerHTML = ''; // ローディング文字を消す
+            data.forEach(item => {
+                // "2025年 5月" -> ["2025", "5月"] に分解
+                const parts = item.year_season.split('年 ');
+                const targetId = `slot-${parts[0]}-${parts[1]}`;
+                const container = document.querySelector(`#${targetId} .cards-container`);
 
-                data.forEach(item => {
+                if (container) {
                     const card = document.createElement('div');
-                    card.className = 'scroll-item';
+                    card.className = 'memory-card';
+                    card.onclick = () => showDetail(item);
                     card.innerHTML = `
-                        <div class="text-xs text-red-800 font-bold mb-1">${item.year_season}</div>
-                        <h3 class="text-lg font-bold mb-3 border-b border-gray-200 pb-2">${item.title}</h3>
-                        ${item.image_url ? `<img src="${item.image_url}" class="w-full h-48 object-cover rounded mb-3 shadow-inner">` : ''}
-                        <p class="text-sm text-gray-600 line-clamp-3">${item.message}</p>
-                        <div class="mt-4 text-right text-xs text-gray-400">― ${item.author}</div>
+                        ${item.image_url ? `<img src="${item.image_url}" class="card-img shadow-sm mb-2">` : ''}
+                        <div class="text-sm font-bold text-gray-800">${item.title}</div>
+                        <div class="text-[10px] text-gray-400 mt-1">投稿：${item.author}</div>
                     `;
                     container.appendChild(card);
-                });
+                }
+            });
+        } catch (e) { console.error(e); }
+    }
 
-            } catch (err) {
-                console.error('読み込みエラー:', err);
-            }
-        }
+    // 詳細表示
+    function showDetail(item) {
+        const modal = document.getElementById('modal');
+        const content = document.getElementById('modalData');
+        content.innerHTML = `
+            <div class="text-red-900 font-bold text-sm mb-2">${item.year_season}</div>
+            <h2 class="text-xl font-bold mb-4 border-b pb-2">${item.title}</h2>
+            ${item.image_url ? `<img src="${item.image_url}" class="w-full rounded mb-4 shadow-lg">` : ''}
+            <p class="text-gray-700 leading-relaxed whitespace-pre-wrap mb-6">${item.message}</p>
+            <div class="text-right text-gray-500 text-sm">― ${item.author} より</div>
+        `;
+        modal.style.display = 'flex';
+    }
 
-        loadMemories();
-    </script>
+    function closeModal() { document.getElementById('modal').style.display = 'none'; }
+
+    initTimeline();
+</script>
 </body>
 </html>
