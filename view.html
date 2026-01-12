@@ -8,10 +8,8 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Shippori+Mincho&display=swap');
         body { font-family: 'Shippori Mincho', serif; background-color: #f4f1ea; margin: 0; }
-        
         .washi-bg { background-image: url("https://www.transparenttextures.com/patterns/asfalt-light.png"); min-height: 100vh; }
         
-        /* タイムライン全体のコンテナ */
         .timeline-container {
             display: grid;
             grid-template-rows: auto auto 1fr; 
@@ -21,28 +19,22 @@
             min-height: 100vh;
         }
 
-        /* 1段目：年月 */
         .header-month {
             background: #8b0000; color: white; padding: 10px; text-align: center;
             font-weight: bold; border-right: 1px solid #630000; position: sticky; top: 0; z-index: 20;
         }
 
-        /* 2段目：季節（セル結合風） */
         .header-season-span {
             text-align: center; padding: 6px; font-weight: bold; font-size: 0.9rem;
             letter-spacing: 0.5em; border-bottom: 2px solid #8b0000; border-right: 1px solid #d1d1d1;
-            grid-row: 2; /* 2段目に固定 */
+            grid-row: 2;
         }
         .season-haru { background-color: #fff5f7; color: #d44d5c; }
         .season-natsu { background-color: #f0f9ff; color: #0077b6; }
         .season-aki { background-color: #fff9f0; color: #b5651d; }
         .season-fuyu { background-color: #f8f8ff; color: #4a4e69; }
 
-        /* 3段目：カード設置エリア */
-        .cards-area {
-            border-right: 1px dashed #d1d1d1; min-height: 60vh; padding: 10px;
-            grid-row: 3;
-        }
+        .cards-area { border-right: 1px dashed #d1d1d1; min-height: 60vh; padding: 10px; grid-row: 3; }
 
         .memory-card {
             background: white; padding: 15px; margin-bottom: 20px;
@@ -81,10 +73,9 @@
         const grid = document.getElementById('timelineGrid');
         let currentColumn = 1;
 
-        // 1. 各年・月ごとの「1段目（年月）」と「3段目（カードエリア）」を作成
+        // 1. 各年・月ごとの「1段目」と「3段目」を作成
         years.forEach(y => {
             months.forEach(m => {
-                // 1段目
                 const monthDiv = document.createElement('div');
                 monthDiv.className = 'header-month';
                 monthDiv.style.gridColumn = currentColumn;
@@ -92,7 +83,6 @@
                 monthDiv.innerText = `${y}年 ${m}`;
                 grid.appendChild(monthDiv);
 
-                // 3段目
                 const cardDiv = document.createElement('div');
                 cardDiv.className = 'cards-area';
                 cardDiv.id = `slot-${y}-${m}`;
@@ -104,27 +94,44 @@
             });
         });
 
-        // 2. 「2段目（季節）」を適切なスパンで配置
-        let seasonColumnStart = 1;
-        const seasonConfigs = [
-            { name: '冬', span: 2, class: 'season-fuyu' }, // 1-2月
-            { name: '春', span: 3, class: 'season-haru' }, // 3-5月
-            { name: '夏', span: 3, class: 'season-natsu' }, // 6-8月
-            { name: '秋', span: 3, class: 'season-aki' },   // 9-11月
-            { name: '冬', span: 1, class: 'season-fuyu' }  // 12月
+        // 2. 「2段目（季節）」の作成：年を跨いで3ヶ月ごとに結合
+        // 2024年1月を起点として、3ヶ月おきのスパンで描画する
+        const totalMonths = years.length * 12;
+        let col = 1;
+
+        // 起点の1,2月だけは2ヶ月分（2024年のスタート地点）
+        createSeasonLabel('冬', 2, 'season-fuyu', col);
+        col += 2;
+
+        // その後は 春(3), 夏(3), 秋(3), 冬(3) を繰り返す
+        const cycle = [
+            { name: '春', class: 'season-haru' },
+            { name: '夏', class: 'season-natsu' },
+            { name: '秋', class: 'season-aki' },
+            { name: '冬', class: 'season-fuyu' }
         ];
 
-        years.forEach(y => {
-            seasonConfigs.forEach(s => {
-                const div = document.createElement('div');
-                div.className = `header-season-span ${s.class}`;
-                div.style.gridColumn = `${seasonColumnStart} / span ${s.span}`;
-                div.style.gridRow = '2';
-                div.innerText = s.name;
-                grid.appendChild(div);
-                seasonColumnStart += s.span;
-            });
-        });
+        let cycleIdx = 0;
+        while (col <= totalMonths) {
+            let span = 3;
+            // 最後の端数調整
+            if (col + span > totalMonths + 1) span = (totalMonths + 1) - col;
+            
+            const s = cycle[cycleIdx % 4];
+            createSeasonLabel(s.name, span, s.class, col);
+            
+            col += span;
+            cycleIdx++;
+        }
+
+        function createSeasonLabel(name, span, className, startCol) {
+            const div = document.createElement('div');
+            div.className = `header-season-span ${className}`;
+            div.style.gridColumn = `${startCol} / span ${span}`;
+            div.style.gridRow = '2';
+            div.innerText = name;
+            grid.appendChild(div);
+        }
 
         // 3. データ取得
         try {
@@ -164,9 +171,9 @@
         const content = document.getElementById('modalData');
         content.innerHTML = `
             <div class="text-red-900 font-bold text-xs mb-1">${item.year_season}</div>
-            <h2 class="text-xl font-bold mb-4 border-b pb-2">${item.title}</h2>
+            <h2 class="text-xl font-bold mb-4 border-b pb-2 text-gray-800">${item.title}</h2>
             ${item.image_url ? `<img src="${item.image_url}" class="w-full rounded mb-4 shadow-sm">` : ''}
-            <p class="text-gray-700 leading-relaxed whitespace-pre-wrap mb-6">${item.message}</p>
+            <p class="text-gray-700 leading-relaxed whitespace-pre-wrap mb-6 text-sm md:text-base">${item.message}</p>
             <div class="text-right text-gray-400 text-sm italic">― ${item.author} より</div>
         `;
         modal.style.display = 'flex';
