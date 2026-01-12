@@ -10,12 +10,11 @@
         
         body { 
             font-family: 'Shippori Mincho', serif; 
-            background-color: #1a2310; /* 深い緑系の黒で背景を締める */
+            background-color: #242b1d; /* 背景を少し明るめの暗緑へ */
             margin: 0; 
             overflow-y: hidden;
         }
 
-        /* 巻物全体の影と質感 */
         .scroll-outer {
             display: flex;
             align-items: stretch;
@@ -25,36 +24,34 @@
             scroll-behavior: smooth;
         }
 
-        /* 軸棒：木目調の深い茶色 */
+        /* 軸棒：少し艶のある木目 */
         .scroll-rod-left {
             flex: 0 0 45px;
-            background: linear-gradient(to right, #2c1b0e, #5d3f2e, #2c1b0e);
+            background: linear-gradient(to right, #3d2b1f, #7a5a40, #3d2b1f);
             border-radius: 8px 0 0 8px;
-            box-shadow: 4px 0 15px rgba(0,0,0,0.6);
+            box-shadow: 4px 0 15px rgba(0,0,0,0.5);
             position: sticky;
-            left: 0;
-            z-index: 50;
+            left: 0; z-index: 50;
         }
 
         .scroll-rod-right {
             flex: 0 0 45px;
-            background: linear-gradient(to right, #2c1b0e, #5d3f2e, #2c1b0e);
+            background: linear-gradient(to right, #3d2b1f, #7a5a40, #3d2b1f);
             border-radius: 0 8px 8px 0;
-            box-shadow: -4px 0 15px rgba(0,0,0,0.6);
+            box-shadow: -4px 0 15px rgba(0,0,0,0.5);
         }
 
-        /* 巻物の表紙：緑（常盤色） */
+        /* 巻物の表紙：明るめの緑（若緑） */
         .scroll-cover {
             flex: 0 0 160px;
-            background-color: #2d5133; /* 深緑 */
-            background-image: url("https://www.transparenttextures.com/patterns/padded-cells.png"); /* 布の織り目 */
-            border-right: 4px double #d4af37; /* 金の二重線 */
+            background-color: #4a7c59; /* 以前より明るい緑 */
+            background-image: url("https://www.transparenttextures.com/patterns/padded-cells.png"); 
+            border-right: 4px double #d4af37;
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
-        /* 和紙エリア */
         .washi-paper {
             background-color: #fcfaf2;
             background-image: url("https://www.transparenttextures.com/patterns/asfalt-light.png");
@@ -62,62 +59,55 @@
             grid-template-rows: auto auto 1fr;
             grid-auto-flow: column;
             grid-auto-columns: 280px;
-            box-shadow: inset 0 0 100px rgba(0,0,0,0.05);
+            box-shadow: inset 0 0 80px rgba(0,0,0,0.03);
         }
 
-        /* 1段目：年月 */
         .header-month {
-            background: #1e3a1a; /* 落ち着いた緑黒 */
+            background: #2d4d35; /* 巻物と合わせた緑系 */
             color: #fcfaf2; 
-            padding: 14px; 
-            text-align: center;
-            font-weight: bold; 
-            border-right: 1px solid #142611;
+            padding: 14px; text-align: center;
+            font-weight: bold; border-right: 1px solid #1e3323;
             position: sticky; top: 0; z-index: 20;
         }
 
-        /* 2段目：季節（色をはっきり強化） */
+        /* 2段目：季節（彩度を少し抑えた上品な配色） */
         .header-season-span {
             text-align: center; padding: 10px; font-weight: 900; font-size: 1.1rem;
-            letter-spacing: 1em; border-bottom: 4px solid #1e3a1a; border-right: 1px solid #d1d1d1;
+            letter-spacing: 1em; border-bottom: 4px solid #2d4d35; border-right: 1px solid #d1d1d1;
             grid-row: 2;
         }
-        /* 春：はっきりしたピンク */
-        .season-haru { background-color: #ffcad4; color: #a4133c; }
-        /* 夏：鮮やかな向日葵色 */
-        .season-natsu { background-color: #ffea00; color: #856404; }
-        /* 秋：深みのある紅葉橙 */
-        .season-aki { background-color: #e85d04; color: #ffffff; }
-        /* 冬：クリアな水色白 */
-        .season-fuyu { background-color: #caf0f8; color: #0077b6; }
+        /* 春：優雅な桜色 */
+        .season-haru { background-color: #ffe0e6; color: #a43a4e; }
+        /* 夏：落ち着いた向日葵色 */
+        .season-natsu { background-color: #ffedaf; color: #856a14; }
+        /* 秋：和の照柿色（少し抑えめ） */
+        .season-aki { background-color: #eb946e; color: #ffffff; }
+        /* 冬：清涼感のある白水色 */
+        .season-fuyu { background-color: #e0f2f7; color: #40768a; }
 
         .cards-area { border-right: 1px dashed #c1baaa; padding: 15px; grid-row: 3; }
 
-        /* カードデザイン */
         .memory-card {
             background: white; padding: 15px; margin-bottom: 25px;
-            box-shadow: 2px 4px 12px rgba(0,0,0,0.1); border-radius: 3px;
-            cursor: pointer; transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1); border: 1px solid #e0dcd0;
+            box-shadow: 2px 4px 10px rgba(0,0,0,0.08); border-radius: 3px;
+            cursor: pointer; transition: all 0.3s ease; border: 1px solid #e0dcd0;
         }
-        .memory-card:hover { transform: translateY(-5px); border-color: #2d5133; box-shadow: 0 10px 20px rgba(0,0,0,0.15); }
+        .memory-card:hover { transform: translateY(-5px); border-color: #4a7c59; box-shadow: 0 8px 15px rgba(0,0,0,0.12); }
 
         #modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 100; align-items: center; justify-content: center; padding: 20px; }
-        .modal-content { background: #fcfaf2; max-width: 550px; width: 100%; padding: 40px; position: relative; border: 3px solid #d4af37; border-radius: 2px; }
+        .modal-content { background: #fcfaf2; max-width: 550px; width: 100%; padding: 40px; position: relative; border: 3px solid #d4af37; }
     </style>
 </head>
 <body>
 
 <div class="scroll-outer">
     <div class="scroll-rod-left"></div>
-    
     <div class="scroll-cover">
-        <div class="text-[#d4af37] [writing-mode:vertical-rl] text-2xl tracking-[0.6em] font-bold drop-shadow-md">
+        <div class="text-[#f1e4b3] [writing-mode:vertical-rl] text-2xl tracking-[0.6em] font-bold drop-shadow-lg">
             思い出年表
         </div>
     </div>
-
     <div class="washi-paper" id="timelineGrid"></div>
-
     <div class="scroll-rod-right"></div>
 </div>
 
@@ -129,7 +119,7 @@
 </div>
 
 <script>
-    // JS部分は変更なし、ロジックをそのまま継承
+    // JS部分は以前の完成されたロジックを継承
     const SUPABASE_URL = 'https://pjhplgopgabbdwuwqtrh.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBqaHBsZ29wZ2FiYmR3dXdxdHJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgxMTkwODQsImV4cCI6MjA4MzY5NTA4NH0.RrMTtl_l56qZLnYLQKvPrF7-6EomPIdKtHC1iFKTAXs';
     const years = ['2024', '2025', '2026'];
@@ -138,26 +128,21 @@
     async function init() {
         const grid = document.getElementById('timelineGrid');
         let currentColumn = 1;
-
         years.forEach(y => {
             months.forEach(m => {
                 const monthDiv = document.createElement('div');
                 monthDiv.className = 'header-month';
-                monthDiv.style.gridColumn = currentColumn;
-                monthDiv.style.gridRow = '1';
+                monthDiv.style.gridColumn = currentColumn; monthDiv.style.gridRow = '1';
                 monthDiv.innerText = `${y}年 ${m}`;
                 grid.appendChild(monthDiv);
-
                 const cardDiv = document.createElement('div');
                 cardDiv.className = 'cards-area';
                 cardDiv.id = `slot-${y}-${m}`;
-                cardDiv.style.gridColumn = currentColumn;
-                cardDiv.style.gridRow = '3';
+                cardDiv.style.gridColumn = currentColumn; cardDiv.style.gridRow = '3';
                 grid.appendChild(cardDiv);
                 currentColumn++;
             });
         });
-
         const totalMonths = years.length * 12;
         let col = 1;
         createSeasonLabel('冬', 2, 'season-fuyu', col);
@@ -169,10 +154,8 @@
             if (col + span > totalMonths + 1) span = (totalMonths + 1) - col;
             const s = cycle[cycleIdx % 4];
             createSeasonLabel(s.name, span, s.class, col);
-            col += span;
-            cycleIdx++;
+            col += span; cycleIdx++;
         }
-
         function createSeasonLabel(name, span, className, startCol) {
             const div = document.createElement('div');
             div.className = `header-season-span ${className}`;
@@ -181,7 +164,6 @@
             div.innerText = name;
             grid.appendChild(div);
         }
-
         try {
             const res = await fetch(`${SUPABASE_URL}/rest/v1/memories?select=*`, {
                 headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
@@ -201,23 +183,22 @@
                     card.className = 'memory-card';
                     card.onclick = () => showDetail(item);
                     card.innerHTML = `
-                        ${item.image_url ? `<img src="${item.image_url}" class="w-full h-40 object-cover mb-4 rounded-sm">` : ''}
+                        ${item.image_url ? `<img src="${item.image_url}" class="w-full h-40 object-cover mb-4 rounded-sm shadow-inner">` : ''}
                         <div class="text-base font-bold text-gray-800 leading-snug">${item.title}</div>
-                        <div class="text-xs text-gray-400 mt-3 text-right italic">― ${item.author}</div>
+                        <div class="text-xs text-gray-400 mt-3 text-right">― ${item.author}</div>
                     `;
                     container.appendChild(card);
                 }
             });
         } catch (e) { console.error(e); }
     }
-
     function showDetail(item) {
         const modal = document.getElementById('modal');
         const content = document.getElementById('modalData');
         content.innerHTML = `
-            <div class="text-green-800 font-bold text-xs mb-1 tracking-widest">${item.year_season}</div>
-            <h2 class="text-2xl font-bold mb-5 border-b-2 border-green-800 pb-3 text-gray-800">${item.title}</h2>
-            ${item.image_url ? `<img src="${item.image_url}" class="w-full rounded shadow-lg border-8 border-white mb-6">` : ''}
+            <div class="text-green-700 font-bold text-xs mb-1 tracking-widest">${item.year_season}</div>
+            <h2 class="text-2xl font-bold mb-5 border-b-2 border-green-700 pb-3 text-gray-800">${item.title}</h2>
+            ${item.image_url ? `<img src="${item.image_url}" class="w-full rounded shadow-md border-8 border-white mb-6">` : ''}
             <p class="text-gray-700 leading-loose whitespace-pre-wrap mb-8 text-base">${item.message}</p>
             <div class="text-right text-gray-500 text-sm italic pt-4 border-t border-dashed">― ${item.author} より</div>
         `;
