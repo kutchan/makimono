@@ -1,1 +1,96 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>思い出の巻物 | 年表</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Shippori+Mincho&display=swap');
+        body { font-family: 'Shippori Mincho', serif; background-color: #f4f1ea; overflow-x: auto; }
+        .scroll-container { 
+            display: flex; 
+            padding: 50px 20px;
+            min-height: 100vh;
+            background-image: url("https://www.transparenttextures.com/patterns/asfalt-light.png");
+        }
+        /* 巻物の芯をイメージした装飾 */
+        .scroll-item {
+            flex: 0 0 300px;
+            margin-right: 40px;
+            position: relative;
+            background: white;
+            padding: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            border-left: 2px solid #8b0000;
+        }
+        .scroll-item::before {
+            content: ""; position: absolute; left: -10px; top: 0; bottom: 0; width: 10px;
+            background: linear-gradient(to right, #5e0000, #8b0000);
+            border-radius: 5px 0 0 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="scroll-container" id="timeline">
+        <div class="flex items-center justify-center w-full text-red-900 italic">
+            思い出を紐解いています...
+        </div>
+    </div>
 
+    <script>
+        const SUPABASE_URL = 'https://pjhplgopgabbdwuwqtrh.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBqaHBsZ29wZ2FiYmR3dXdxdHJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgxMTkwODQsImV4cCI6MjA4MzY5NTA4NH0.RrMTtl_l56qZLnYLQKvPrF7-6EomPIdKtHC1iFKTAXs';
+
+        // 季節を並び替え用の数値に変換する辞書
+        const seasonMap = { "春": 4, "夏": 7, "秋": 10, "冬": 13 };
+
+        async function loadMemories() {
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/memories?select=*`, {
+                    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+                });
+                const data = await response.json();
+
+                // --- 1. 時間順に並び替える（ソートロジック） ---
+                data.sort((a, b) => {
+                    const parseDate = (str) => {
+                        const [y, ms] = str.split('年 '); // "2025年 5月" を分割
+                        const year = parseInt(y);
+                        let month = 0;
+                        if (ms.includes('月')) {
+                            month = parseInt(ms);
+                        } else {
+                            month = seasonMap[ms] || 0;
+                        }
+                        return year * 100 + month; // 202505 のような数値にして比較
+                    };
+                    return parseDate(a.year_season) - parseDate(b.year_season);
+                });
+
+                // --- 2. 画面に表示する ---
+                const container = document.getElementById('timeline');
+                container.innerHTML = ''; // ローディング文字を消す
+
+                data.forEach(item => {
+                    const card = document.createElement('div');
+                    card.className = 'scroll-item';
+                    card.innerHTML = `
+                        <div class="text-xs text-red-800 font-bold mb-1">${item.year_season}</div>
+                        <h3 class="text-lg font-bold mb-3 border-b border-gray-200 pb-2">${item.title}</h3>
+                        ${item.image_url ? `<img src="${item.image_url}" class="w-full h-48 object-cover rounded mb-3 shadow-inner">` : ''}
+                        <p class="text-sm text-gray-600 line-clamp-3">${item.message}</p>
+                        <div class="mt-4 text-right text-xs text-gray-400">― ${item.author}</div>
+                    `;
+                    container.appendChild(card);
+                });
+
+            } catch (err) {
+                console.error('読み込みエラー:', err);
+            }
+        }
+
+        loadMemories();
+    </script>
+</body>
+</html>
