@@ -9,49 +9,59 @@
         @import url('https://fonts.googleapis.com/css2?family=Shippori+Mincho&display=swap');
         
         :root {
-            /* コントラストを強調した色彩設計 */
-            --cover-green: #2d5133;       /* 表紙：重厚な深い緑 */
-            --header-green: #5ebc67;      /* ヘッダー：明るい若竹色 */
-            --accent-gold: #d4af37;       /* 金色 */
-            --washi-bg: #fdfaf2;          /* 和紙の地色 */
+            /* 商用向けカラーパレット：色の役割を明確に分離 */
+            --cover-green: #2d5133;       /* 表紙：重厚で高級感のある深い緑（常盤色） */
+            --header-green: #5ebc67;      /* ヘッダー：視認性と清潔感のある明るい緑（若竹色） */
+            --accent-gold: #d4af37;       /* 装飾：お祝いに相応しい金 */
+            --washi-bg: #fdfaf2;          /* 背景：和紙の温かみを感じる生成り色 */
+            --rod-brown: #3e2723;         /* 軸棒：落ち着いた木の色 */
         }
 
         body { 
             font-family: 'Shippori Mincho', serif; 
-            background-color: #e2e8df; /* 背景を一段階落として巻物を浮かせる */
+            background-color: #f7f8f5; 
             margin: 0; 
-            overflow: hidden; 
+            overflow: hidden; /* 全体の縦スクロールを禁止 */
         }
 
+        /* 巻物全体の外枠 */
         .scroll-outer {
             display: flex;
             align-items: stretch;
             height: 100vh;
-            padding: 30px 0;
+            padding: 25px 0;
             overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
-        /* 左の軸棒 */
+        /* 軸棒のデザイン */
         .scroll-rod-left {
             flex: 0 0 45px;
-            background: linear-gradient(to right, #3e2723, #795548, #3e2723);
+            background: linear-gradient(to right, var(--rod-brown), #795548, var(--rod-brown));
             border-radius: 8px 0 0 8px;
             position: sticky; left: 0; z-index: 100;
             box-shadow: 4px 0 10px rgba(0,0,0,0.3);
         }
 
-        /* 巻物の表紙（タイトル部分）：色を濃く、質感を強調 */
+        .scroll-rod-right {
+            flex: 0 0 45px;
+            background: linear-gradient(to right, var(--rod-brown), #795548, var(--rod-brown));
+            border-radius: 0 8px 8px 0;
+            box-shadow: -4px 0 10px rgba(0,0,0,0.3);
+        }
+
+        /* 表紙（タイトル部分） */
         .scroll-cover {
             flex: 0 0 180px;
             background-color: var(--cover-green);
-            background-image: url("https://www.transparenttextures.com/patterns/padded-cells.png"); 
+            background-image: url("https://www.transparenttextures.com/patterns/fabric-of-the-nation.png");
             border-right: 5px double var(--accent-gold);
             display: flex; align-items: center; justify-content: center;
             z-index: 60;
             box-shadow: 10px 0 20px rgba(0,0,0,0.1);
         }
 
-        /* 和紙エリア */
+        /* 年表（和紙）エリア */
         .washi-paper {
             background-color: var(--washi-bg);
             background-image: url("https://www.transparenttextures.com/patterns/asfalt-light.png");
@@ -62,17 +72,18 @@
             position: relative;
         }
 
-        /* 1段目：年月ヘッダー */
+        /* 1段目：年月ヘッダー（固定） */
         .header-month {
             background-color: var(--header-green);
             color: white; 
             display: flex; align-items: center; justify-content: center;
-            font-weight: bold; border-right: 1px solid rgba(0,0,0,0.1);
+            font-weight: bold; font-size: 1.1rem;
+            border-right: 1px solid rgba(255,255,255,0.2);
             position: sticky; top: 0; z-index: 50;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1); /* 下方向に影をつけて浮かせる */
+            box-shadow: 0 3px 6px rgba(0,0,0,0.15); /* ヘッダーが浮いている演出 */
         }
 
-        /* 2段目：季節ヘッダー */
+        /* 2段目：季節ヘッダー（固定） */
         .header-season-span {
             display: flex; align-items: center; justify-content: center;
             font-weight: 900; font-size: 1rem;
@@ -83,42 +94,35 @@
             grid-row: 2;
         }
 
-        /* 季節ごとの色合い */
+        /* 季節ごとのパレット（緑に調和するトーン） */
         .season-haru { background-color: #fff0f3; color: #b54d5d; }
         .season-natsu { background-color: #fff9e6; color: #947a19; }
         .season-aki { background-color: #fdf2ed; color: #b05435; }
         .season-fuyu { background-color: #f1f8e9; color: #4e7a3d; }
 
-        /* 3段目：カードエリア（個別スクロール） */
+        /* 3段目：個別カードエリア（縦スクロール） */
         .cards-area { 
             border-right: 1px dashed #d1d1d1; 
             padding: 20px 15px; 
             grid-row: 3;
             overflow-y: auto; 
             height: calc(100vh - 160px); 
-            scrollbar-width: none; /* Firefox用：スクロールバー隠し */
-            -ms-overflow-style: none; /* IE用 */
+            scrollbar-width: none; /* Firefoxスクロールバー非表示 */
         }
-        .cards-area::-webkit-scrollbar { display: none; } /* Chrome, Safari用 */
+        .cards-area::-webkit-scrollbar { display: none; } /* Chrome/Safari非表示 */
 
+        /* 思い出カードのデザイン */
         .memory-card {
             background: white; padding: 15px; margin-bottom: 25px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-radius: 2px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-radius: 4px;
             cursor: pointer; transition: 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94); 
             border: 1px solid #eee;
         }
-        .memory-card:hover { transform: translateY(-5px); border-color: var(--header-green); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+        .memory-card:hover { transform: translateY(-5px); border-color: var(--header-green); box-shadow: 0 8px 20px rgba(0,0,0,0.12); }
 
-        .scroll-rod-right {
-            flex: 0 0 45px;
-            background: linear-gradient(to right, #3e2723, #795548, #3e2723);
-            border-radius: 0 8px 8px 0;
-            box-shadow: -4px 0 10px rgba(0,0,0,0.3);
-        }
-
-        /* モーダル */
+        /* 詳細モーダル */
         #modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 200; align-items: center; justify-content: center; padding: 20px; }
-        .modal-content { background: var(--washi-bg); max-width: 550px; width: 100%; padding: 40px; position: relative; border: 2px solid var(--accent-gold); }
+        .modal-content { background: var(--washi-bg); max-width: 550px; width: 100%; padding: 40px; position: relative; border: 2px solid var(--accent-gold); box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
     </style>
 </head>
 <body>
@@ -132,7 +136,8 @@
         </div>
     </div>
 
-    <div class="washi-paper" id="timelineGrid"></div>
+    <div class="washi-paper" id="timelineGrid">
+        </div>
 
     <div class="scroll-rod-right"></div>
 </div>
@@ -145,9 +150,11 @@
 </div>
 
 <script>
-    // JS部分は以前の完成されたロジックを継承
+    /* --- 基本設定（Supabaseの情報を入れてください） --- */
     const SUPABASE_URL = 'https://pjhplgopgabbdwuwqtrh.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBqaHBsZ29wZ2FiYmR3dXdxdHJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgxMTkwODQsImV4cCI6MjA4MzY5NTA4NH0.RrMTtl_l56qZLnYLQKvPrF7-6EomPIdKtHC1iFKTAXs';
+    
+    /* 生成する期間の設定 */
     const years = ['2024', '2025', '2026'];
     const months = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
 
@@ -155,35 +162,49 @@
         const grid = document.getElementById('timelineGrid');
         let currentColumn = 1;
 
+        // 1. 月ごとのヘッダーとカードエリアの土台を作成
         years.forEach(y => {
             months.forEach(m => {
+                // 年月ヘッダー
                 const monthDiv = document.createElement('div');
                 monthDiv.className = 'header-month';
                 monthDiv.style.gridColumn = currentColumn; monthDiv.style.gridRow = '1';
                 monthDiv.innerText = `${y}年 ${m}`;
                 grid.appendChild(monthDiv);
 
+                // カードエリア（縦スクロール用）
                 const cardDiv = document.createElement('div');
                 cardDiv.className = 'cards-area';
                 cardDiv.id = `slot-${y}-${m}`;
                 cardDiv.style.gridColumn = currentColumn; cardDiv.style.gridRow = '3';
                 grid.appendChild(cardDiv);
+                
                 currentColumn++;
             });
         });
 
+        // 2. 季節ラベルを生成して配置
         const totalMonths = years.length * 12;
         let col = 1;
+        // 最初の冬（1月、2月）
         createSeasonLabel('冬', 2, 'season-fuyu', col);
         col += 2;
-        const cycle = [{name:'春',class:'season-haru'},{name:'夏',class:'season-natsu'},{name:'秋',class:'season-aki'},{name:'冬',class:'season-fuyu'}];
+        
+        const cycle = [
+            {name:'春', class:'season-haru'},
+            {name:'夏', class:'season-natsu'},
+            {name:'秋', class:'season-aki'},
+            {name:'冬', class:'season-fuyu'}
+        ];
+        
         let cycleIdx = 0;
         while (col <= totalMonths) {
             let span = 3;
             if (col + span > totalMonths + 1) span = (totalMonths + 1) - col;
             const s = cycle[cycleIdx % 4];
             createSeasonLabel(s.name, span, s.class, col);
-            col += span; cycleIdx++;
+            col += span;
+            cycleIdx++;
         }
 
         function createSeasonLabel(name, span, className, startCol) {
@@ -195,19 +216,24 @@
             grid.appendChild(div);
         }
 
+        // 3. Supabaseからデータを取得してカードを配置
         try {
             const res = await fetch(`${SUPABASE_URL}/rest/v1/memories?select=*`, {
                 headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
             });
             const data = await res.json();
+            
             data.forEach(item => {
                 const parts = item.year_season.split('年 ');
                 let y = parseInt(parts[0]);
                 let m = parts[1];
+                
+                // 表示スロットの調整（DBの表記を月ヘッダーに合わせる）
                 if (m === "春（3〜5月）") m = "4月";
                 else if (m === "夏（6〜8月）") m = "7月";
                 else if (m === "秋（9〜11月）") m = "10月";
                 else if (m === "冬（12〜翌2月）") { m = "1月"; y = y + 1; }
+                
                 const container = document.getElementById(`slot-${y}-${m}`);
                 if (container) {
                     const card = document.createElement('div');
@@ -221,22 +247,30 @@
                     container.appendChild(card);
                 }
             });
-        } catch (e) { console.error(e); }
+        } catch (e) {
+            console.error("データ取得エラー:", e);
+        }
     }
 
+    // 詳細モーダル表示
     function showDetail(item) {
         const modal = document.getElementById('modal');
         const content = document.getElementById('modalData');
         content.innerHTML = `
             <div class="text-green-700 font-bold text-xs mb-1 tracking-widest">${item.year_season}</div>
             <h2 class="text-2xl font-bold mb-4 border-b-2 border-green-700 pb-2 text-gray-800">${item.title}</h2>
-            ${item.image_url ? `<img src="${item.image_url}" class="w-full rounded mb-6 shadow-sm border-4 border-white">` : ''}
+            ${item.image_url ? `<img src="${item.image_url}" class="w-full rounded mb-6 shadow-md border-4 border-white">` : ''}
             <p class="text-gray-700 leading-relaxed whitespace-pre-wrap mb-8">${item.message}</p>
             <div class="text-right text-gray-500 text-sm italic pt-4 border-t border-dashed">― ${item.author} より</div>
         `;
         modal.style.display = 'flex';
     }
-    function closeModal() { document.getElementById('modal').style.display = 'none'; }
+
+    // モーダルを閉じる
+    function closeModal() {
+        document.getElementById('modal').style.display = 'none';
+    }
+
     init();
 </script>
 </body>
