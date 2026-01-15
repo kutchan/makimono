@@ -12,11 +12,17 @@
             background-color: #ffffff; 
             background-image: url("https://www.transparenttextures.com/patterns/asfalt-light.png"); 
         }
+        /* ロード中にフォームを隠すためのスタイル */
+        #mainContent { display: none; }
     </style>
 </head>
 <body class="p-4 md:p-8">
-    <div class="max-w-md mx-auto washi-texture p-6 shadow-xl border-t-4 border-red-800 rounded-sm">
-        <h1 class="text-2xl font-bold text-red-900 mb-2 border-b border-red-200 pb-2 text-center">思い出の断片を贈る</h1>
+    <div id="errorMessage" class="hidden max-w-md mx-auto washi-texture p-10 shadow-xl border-t-4 border-red-800 rounded-sm text-center">
+        <p class="text-red-900 font-bold" id="errorText"></p>
+    </div>
+
+    <div id="mainContent" class="max-w-md mx-auto washi-texture p-6 shadow-xl border-t-4 border-red-800 rounded-sm">
+        <h1 id="eventTitle" class="text-2xl font-bold text-red-900 mb-2 border-b border-red-200 pb-2 text-center">思い出の断片を贈る</h1>
         
         <p class="text-sm text-gray-700 mb-6 text-center leading-relaxed">
             皆さまの大切な思い出を<br>
@@ -83,10 +89,42 @@
         const SUPABASE_URL = 'https://pjhplgopgabbdwuwqtrh.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBqaHBsZ29wZ2FiYmR3dXdxdHJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgxMTkwODQsImV4cCI6MjA4MzY5NTA4NH0.RrMTtl_l56qZLnYLQKvPrF7-6EomPIdKtHC1iFKTAXs';
 
-        /* --- 今回追加したロジック: URLからIDを取得 --- */
         const urlParams = new URLSearchParams(window.location.search);
-        const roomId = urlParams.get('id') || 'default';
+        const roomId = urlParams.get('id');
 
+        // 起動時に部屋の存在を確認
+        async function init() {
+            if (!roomId) {
+                showError("URLにIDが含まれていません。正しいURLからアクセスしてください。");
+                return;
+            }
+
+            try {
+                const res = await fetch(`${SUPABASE_URL}/rest/v1/rooms?id=eq.${roomId}&select=name`, {
+                    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+                });
+                const data = await res.json();
+
+                if (data.length === 0) {
+                    showError("指定された巻物は存在しないか、有効期限が切れています。");
+                } else {
+                    // 部屋が存在すれば表示。h1をイベント名に変える場合は以下を有効に
+                    // document.getElementById('eventTitle').innerText = data[0].name;
+                    document.getElementById('mainContent').style.display = 'block';
+                }
+            } catch (err) {
+                showError("接続エラーが発生しました。");
+            }
+        }
+
+        function showError(msg) {
+            document.getElementById('errorMessage').classList.remove('hidden');
+            document.getElementById('errorText').innerText = msg;
+        }
+
+        init();
+
+        // フォーム送信処理
         document.getElementById('memoryForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('submitBtn');
@@ -128,7 +166,6 @@
                         message: document.getElementById('message').value,
                         author: document.getElementById('author').value,
                         image_url: imageUrl,
-                        /* --- 今回追加した項目: room_id --- */
                         room_id: roomId
                     })
                 });
