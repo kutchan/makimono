@@ -9,16 +9,16 @@
         @import url('https://fonts.googleapis.com/css2?family=Shippori+Mincho&display=swap');
         
         :root {
-            /* 若竹色をベースにした色彩設計 */
-            --primary-green: #5ebc67;      /* 表紙：少し深みのある緑 */
-            --header-green: #68be71;       /* ヘッダー：情報の視認性が高い緑 */
-            --accent-gold: #d4af37;        /* アクセント：金 */
-            --washi-white: #fcfcfc;        /* 和紙：真っ白すぎない白 */
+            /* コントラストを強調した色彩設計 */
+            --cover-green: #2d5133;       /* 表紙：重厚な深い緑 */
+            --header-green: #5ebc67;      /* ヘッダー：明るい若竹色 */
+            --accent-gold: #d4af37;       /* 金色 */
+            --washi-bg: #fdfaf2;          /* 和紙の地色 */
         }
 
         body { 
             font-family: 'Shippori Mincho', serif; 
-            background-color: #f7f8f5; 
+            background-color: #e2e8df; /* 背景を一段階落として巻物を浮かせる */
             margin: 0; 
             overflow: hidden; 
         }
@@ -27,83 +27,98 @@
             display: flex;
             align-items: stretch;
             height: 100vh;
-            padding: 20px 0;
+            padding: 30px 0;
             overflow-x: auto;
         }
 
-        /* 軸棒：明るい欅（けやき）のような木目 */
+        /* 左の軸棒 */
         .scroll-rod-left {
             flex: 0 0 45px;
-            background: linear-gradient(to right, #4e342e, #8d6e63, #4e342e);
+            background: linear-gradient(to right, #3e2723, #795548, #3e2723);
             border-radius: 8px 0 0 8px;
             position: sticky; left: 0; z-index: 100;
+            box-shadow: 4px 0 10px rgba(0,0,0,0.3);
         }
 
-        /* 巻物の表紙 */
+        /* 巻物の表紙（タイトル部分）：色を濃く、質感を強調 */
         .scroll-cover {
-            flex: 0 0 160px;
-            background-color: var(--primary-green);
-            background-image: url("https://www.transparenttextures.com/patterns/fabric-of-the-nation.png");
-            border-right: 4px double var(--accent-gold);
+            flex: 0 0 180px;
+            background-color: var(--cover-green);
+            background-image: url("https://www.transparenttextures.com/patterns/padded-cells.png"); 
+            border-right: 5px double var(--accent-gold);
             display: flex; align-items: center; justify-content: center;
-            box-shadow: 5px 0 15px rgba(0,0,0,0.05);
+            z-index: 60;
+            box-shadow: 10px 0 20px rgba(0,0,0,0.1);
         }
 
         /* 和紙エリア */
         .washi-paper {
-            background-color: var(--washi-white);
+            background-color: var(--washi-bg);
             background-image: url("https://www.transparenttextures.com/patterns/asfalt-light.png");
             display: grid;
-            grid-template-rows: 50px 45px 1fr; /* 高さを固定してstickyを安定させる */
+            grid-template-rows: 55px 45px 1fr;
             grid-auto-flow: column;
             grid-auto-columns: 280px;
+            position: relative;
         }
 
-        /* 1段目：年月ヘッダー（固定） */
+        /* 1段目：年月ヘッダー */
         .header-month {
             background-color: var(--header-green);
             color: white; 
             display: flex; align-items: center; justify-content: center;
-            font-weight: bold; border-right: 1px solid rgba(255,255,255,0.2);
-            position: sticky; top: 0; z-index: 40;
+            font-weight: bold; border-right: 1px solid rgba(0,0,0,0.1);
+            position: sticky; top: 0; z-index: 50;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); /* 下方向に影をつけて浮かせる */
         }
 
-        /* 2段目：季節ヘッダー（固定） */
+        /* 2段目：季節ヘッダー */
         .header-season-span {
             display: flex; align-items: center; justify-content: center;
             font-weight: 900; font-size: 1rem;
-            letter-spacing: 0.8em; border-bottom: 3px solid var(--header-green); border-right: 1px solid #eee;
-            position: sticky; top: 50px; z-index: 30;
+            letter-spacing: 0.8em; 
+            border-bottom: 3px solid var(--header-green);
+            border-right: 1px solid rgba(0,0,0,0.05);
+            position: sticky; top: 55px; z-index: 40;
             grid-row: 2;
         }
 
-        /* 季節の配色（緑に馴染むようパステル系を再調整） */
+        /* 季節ごとの色合い */
         .season-haru { background-color: #fff0f3; color: #b54d5d; }
         .season-natsu { background-color: #fff9e6; color: #947a19; }
         .season-aki { background-color: #fdf2ed; color: #b05435; }
         .season-fuyu { background-color: #f1f8e9; color: #4e7a3d; }
 
-        /* 3段目：カードエリア（ここだけ縦スクロール） */
+        /* 3段目：カードエリア（個別スクロール） */
         .cards-area { 
-            border-right: 1px dashed #e0e0e0; padding: 15px; grid-row: 3;
-            overflow-y: auto; height: calc(100vh - 135px); 
+            border-right: 1px dashed #d1d1d1; 
+            padding: 20px 15px; 
+            grid-row: 3;
+            overflow-y: auto; 
+            height: calc(100vh - 160px); 
+            scrollbar-width: none; /* Firefox用：スクロールバー隠し */
+            -ms-overflow-style: none; /* IE用 */
         }
+        .cards-area::-webkit-scrollbar { display: none; } /* Chrome, Safari用 */
 
         .memory-card {
-            background: white; padding: 15px; margin-bottom: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05); border-radius: 4px;
-            cursor: pointer; transition: 0.2s; border: 1px solid #f0f0f0;
+            background: white; padding: 15px; margin-bottom: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-radius: 2px;
+            cursor: pointer; transition: 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94); 
+            border: 1px solid #eee;
         }
-        .memory-card:hover { transform: translateY(-3px); border-color: var(--primary-green); }
+        .memory-card:hover { transform: translateY(-5px); border-color: var(--header-green); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
 
         .scroll-rod-right {
             flex: 0 0 45px;
-            background: linear-gradient(to right, #4e342e, #8d6e63, #4e342e);
+            background: linear-gradient(to right, #3e2723, #795548, #3e2723);
             border-radius: 0 8px 8px 0;
+            box-shadow: -4px 0 10px rgba(0,0,0,0.3);
         }
 
-        #modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 200; align-items: center; justify-content: center; padding: 20px; }
-        .modal-content { background: white; max-width: 550px; width: 100%; padding: 40px; position: relative; border: 2px solid var(--accent-gold); }
+        /* モーダル */
+        #modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 200; align-items: center; justify-content: center; padding: 20px; }
+        .modal-content { background: var(--washi-bg); max-width: 550px; width: 100%; padding: 40px; position: relative; border: 2px solid var(--accent-gold); }
     </style>
 </head>
 <body>
@@ -112,7 +127,7 @@
     <div class="scroll-rod-left"></div>
     
     <div class="scroll-cover">
-        <div class="text-[#fdf8e1] [writing-mode:vertical-rl] text-2xl tracking-[0.6em] font-bold drop-shadow-md">
+        <div class="text-[#fdf8e1] [writing-mode:vertical-rl] text-2xl tracking-[0.8em] font-bold drop-shadow-lg">
             思い出年表
         </div>
     </div>
@@ -124,13 +139,13 @@
 
 <div id="modal" onclick="closeModal()">
     <div class="modal-content" onclick="event.stopPropagation()">
-        <button class="absolute top-4 right-4 text-4xl text-gray-300 hover:text-green-800" onclick="closeModal()">&times;</button>
+        <button class="absolute top-4 right-4 text-4xl text-gray-400 hover:text-green-800" onclick="closeModal()">&times;</button>
         <div id="modalData"></div>
     </div>
 </div>
 
 <script>
-    /* JSロジックは以前のものを継承（Supabase URL/Keyの設定を忘れずに） */
+    // JS部分は以前の完成されたロジックを継承
     const SUPABASE_URL = 'https://pjhplgopgabbdwuwqtrh.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBqaHBsZ29wZ2FiYmR3dXdxdHJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgxMTkwODQsImV4cCI6MjA4MzY5NTA4NH0.RrMTtl_l56qZLnYLQKvPrF7-6EomPIdKtHC1iFKTAXs';
     const years = ['2024', '2025', '2026'];
@@ -199,7 +214,7 @@
                     card.className = 'memory-card';
                     card.onclick = () => showDetail(item);
                     card.innerHTML = `
-                        ${item.image_url ? `<img src="${item.image_url}" class="w-full h-40 object-cover mb-4 rounded-sm shadow-sm">` : ''}
+                        ${item.image_url ? `<img src="${item.image_url}" class="w-full h-44 object-cover mb-4 rounded-sm shadow-sm">` : ''}
                         <div class="text-base font-bold text-gray-800 leading-snug">${item.title}</div>
                         <div class="text-xs text-gray-400 mt-2 text-right">― ${item.author}</div>
                     `;
