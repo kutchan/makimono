@@ -80,9 +80,12 @@
     </div>
 
     <script>
-        // ここにあなたのSupabaseの情報を入れてください
         const SUPABASE_URL = 'https://pjhplgopgabbdwuwqtrh.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBqaHBsZ29wZ2FiYmR3dXdxdHJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgxMTkwODQsImV4cCI6MjA4MzY5NTA4NH0.RrMTtl_l56qZLnYLQKvPrF7-6EomPIdKtHC1iFKTAXs';
+
+        /* --- 今回追加したロジック: URLからIDを取得 --- */
+        const urlParams = new URLSearchParams(window.location.search);
+        const roomId = urlParams.get('id') || 'default';
 
         document.getElementById('memoryForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -124,7 +127,9 @@
                         title: document.getElementById('title').value,
                         message: document.getElementById('message').value,
                         author: document.getElementById('author').value,
-                        image_url: imageUrl
+                        image_url: imageUrl,
+                        /* --- 今回追加した項目: room_id --- */
+                        room_id: roomId
                     })
                 });
 
